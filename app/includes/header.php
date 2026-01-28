@@ -13,5 +13,8 @@ $title = $title ?? $config["app_name"];
 
   <link rel="stylesheet" href="<?= $config["base_url"] ?>/assets/css/app.css">
 
+
 </head>
+<script src="<?= $config["base_url"] ?>/assets/js/app.js" defer></script>
+
 <body>

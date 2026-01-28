@@ -1,13 +1,14 @@
 <?php
 declare(strict_types=1);
 
-$host = "127.0.0.1";
-$db   = "tienda";
+$host = "db";
+$db   = "tienda_db";
 $user = "root";
-$pass = "";
+$pass = "root";
 $charset = "utf8mb4";
 
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$dsn = "mysql:host=$host;port=3306;dbname=$db;charset=$charset";
+
 
 $options = [
   PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -19,5 +20,5 @@ try {
   $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (PDOException $e) {
   // En producción no se muestra el error. Aquí lo dejamos simple para desarrollo.
-  die("Error de conexión a la base de datos.");
+  die("DB ERROR: " . $e->getMessage());
 }
