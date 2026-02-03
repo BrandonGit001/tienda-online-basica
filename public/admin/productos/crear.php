@@ -1,0 +1,144 @@
+<?php
+declare(strict_types=1);
+
+require __DIR__ . "/../../../app/config/db.php";
+$config = require __DIR__ . "/../../../app/config/app.php";
+require __DIR__ . "/../../../app/includes/auth.php";
+
+start_session();
+require_admin();
+
+// Traer categorías activas para el select
+$stmtCat = $pdo->prepare("SELECT id, nombre FROM categorias WHERE activa = 1 ORDER BY orden, nombre");
+$stmtCat->execute();
+$categorias = $stmtCat->fetchAll();
+
+$error = "";
+$ok = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  $categoria_id = $_POST["categoria_id"] ?? "";
+  $nombre = trim($_POST["nombre"] ?? "");
+  $slug = trim($_POST["slug"] ?? "");
+  $descripcion = trim($_POST["descripcion"] ?? "");
+  $precio = $_POST["precio"] ?? "0";
+  $stock = $_POST["stock"] ?? "0";
+  $estado = $_POST["estado"] ?? "activo";
+
+  // Validaciones básicas
+  if (!ctype_digit($categoria_id)) {
+    $error = "Categoría inválida.";
+  } elseif ($nombre === "" || mb_strlen($nombre) > 120) {
+    $error = "Nombre inválido.";
+  } elseif ($slug === "" || mb_strlen($slug) > 160) {
+    $error = "Slug inválido.";
+  } elseif (!is_numeric($precio) || (float)$precio < 0) {
+    $error = "Precio inválido.";
+  } elseif (!ctype_digit((string)$stock)) {
+    $error = "Stock inválido.";
+  } elseif (!in_array($estado, ["activo","oculto","agotado","reservado"], true)) {
+    $error = "Estado inválido.";
+  } else {
+    // Insert
+    try {
+      $stmt = $pdo->prepare("
+        INSERT INTO productos (categoria_id, nombre, slug, descripcion, precio, stock, estado)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      ");
+      $stmt->execute([
+        (int)$categoria_id,
+        $nombre,
+        $slug,
+        $descripcion !== "" ? $descripcion : null,
+        (float)$precio,
+        (int)$stock,
+        $estado
+      ]);
+
+      $nuevoId = (int)$pdo->lastInsertId();
+      header("Location: " . $config["base_url"] . "/admin/productos/editar.php?id=" . $nuevoId);
+      exit;
+    } catch (PDOException $e) {
+      // Slug duplicado u otro error
+      $error = "No se pudo guardar. ¿Slug repetido?";
+    }
+  }
+}
+
+$title = "Admin - Crear producto";
+require __DIR__ . "/../../../app/includes/header.php";
+require __DIR__ . "/../../../app/includes/navbar.php";
+?>
+
+<main class="container">
+  <section class="section">
+    <div class="section__actions" style="justify-content:space-between;">
+      <h1 class="section__title" style="margin:0;">Crear producto</h1>
+      <a class="btn btn--ghost" href="<?= $config["base_url"] ?>/admin/productos/">Volver</a>
+    </div>
+
+    <?php if ($error): ?>
+      <p class="muted"><?= htmlspecialchars($error) ?></p>
+    <?php endif; ?>
+
+    <form class="box form" method="post">
+      <div class="box__row">
+        <label>Categoría<br>
+          <select class="form__input" name="categoria_id" required>
+            <?php foreach ($categorias as $c): ?>
+              <option value="<?= (int)$c["id"] ?>"><?= htmlspecialchars($c["nombre"]) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </label>
+      </div>
+
+      <div class="box__row">
+        <label>Nombre<br>
+          <input  class="form__input" name="nombre" required maxlength="120" placeholder="Ej. Nike Air Max">
+        </label>
+      </div>
+
+      <div class="box__row">
+        <label class="form__label">Slug (único)<br>
+         <input class="form__input" name="nombre" required maxlength="120" placeholder="Ej. Nike Air Max">
+        </label>
+        <div class="muted" style="font-size:13px;">Tip: minúsculas, sin acentos, con guiones.</div>
+      </div>
+
+      <div class="box__row">
+        <label class="form__label">Descripción<br>
+          <textarea class="form__input" name="descripcion" rows="4" placeholder="Detalles del producto..."></textarea>
+        </label>
+      </div>
+
+      <div class="box__row">
+        <label class="form__label">Precio<br>
+          <input  class="form__input" name="precio" type="number" step="0.01" min="0" value="0">
+        </label>
+      </div>
+
+      <div class="box__row">
+        <label class="form__label">Stock<br>
+          <input class="form__input" name="stock" type="number" step="1" min="0" value="0">
+        </label>
+      </div>
+
+      <div class="box__row">
+        <label class="form__label">Estado<br>
+          <select name="estado" class="form__input">
+            <option value="activo">activo</option>
+            <option value="agotado">agotado</option>
+            <option value="reservado">reservado</option>
+            <option value="oculto">oculto</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="section__actions">
+        <button class="btn btn--primary" type="submit">Guardar y seguir</button>
+      </div>
+    </form>
+  </section>
+</main>
+
+<?php require __DIR__ . "/../../../app/includes/footer.php"; ?>

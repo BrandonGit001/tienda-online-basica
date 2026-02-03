@@ -14,7 +14,7 @@ declare(strict_types=1);
     </div>
 
     <div class="hero__card" aria-hidden="true">
-      <div class="hero__cardTitle">Tip</div>
+      <div class="hero__cardTitle">en un futuro</div>
       <div class="hero__cardText">Aquí luego ponemos promos, horario o envíos.</div>
     </div>
   </div>

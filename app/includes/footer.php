@@ -21,7 +21,7 @@ $year = (int)date("Y");
   </div>
 </footer>
 
-<script src="<?= $config["base_url"] ?>/assets/js/app.js" defer></script>
+
 
 </body>
 </html>

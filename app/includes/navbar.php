@@ -12,12 +12,15 @@ $waPhone = $config["whatsapp_phone"];
       <span class="nav__name"><?= htmlspecialchars($appName) ?></span>
     </a>
 
-    <button class="nav__toggle" type="button" aria-controls="navMenu" aria-expanded="false">
-      ☰
-    </button>
+        <button class="nav__toggle" type="button" aria-controls="navMenu" aria-expanded="false">
+          ☰
+        </button>
 
-    <div class="nav__menu" id="navMenu">
-      <a class="nav__link" href="/productos.php">Productos</a>
+      <div class="nav__menu" id="navMenu">
+
+
+      <a class="nav__link" href="...">Productos</a>
+
       <a class="nav__link" href="/productos.php?cat=ofertas">Ofertas</a>
 
       <a class="nav__cta" target="_blank" rel="noopener"
