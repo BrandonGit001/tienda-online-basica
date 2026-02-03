@@ -55,16 +55,16 @@ require __DIR__ . "/../../../app/includes/navbar.php";
               </div>
 
               <div class="section__actions">
-  <a class="btn btn--small" href="<?= $config["base_url"] ?>/producto.php?id=<?= (int)$p["id"] ?>" target="_blank" rel="noopener">
-    Ver
-  </a>
-  <a class="btn btn--small" href="<?= $config["base_url"] ?>/admin/productos/editar.php?id=<?= (int)$p["id"] ?>">
-    Editar
-  </a>
-  <a class="btn btn--small" href="<?= $config["base_url"] ?>/admin/productos/eliminar.php?id=<?= (int)$p["id"] ?>">
-    Eliminar
-  </a>
-</div>
+                <a class="btn btn--small" href="<?= $config["base_url"] ?>/producto.php?id=<?= (int)$p["id"] ?>" target="_blank" rel="noopener">
+                  Ver
+                </a>
+                <a class="btn btn--small" href="<?= $config["base_url"] ?>/admin/productos/editar.php?id=<?= (int)$p["id"] ?>">
+                  Editar
+                </a>
+                <a class="btn btn--small" href="<?= $config["base_url"] ?>/admin/productos/eliminar.php?id=<?= (int)$p["id"] ?>">
+                  Eliminar
+                </a>
+              </div>
 
             </div>
           </article>

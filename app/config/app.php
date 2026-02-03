@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 return [
-  "app_name" => "Tienda de Mi Amigo",
+  "app_name" => "Chilango Store",
   "base_url" => "http://localhost:8089",
   "whatsapp_phone" => "526271231011",
 ];

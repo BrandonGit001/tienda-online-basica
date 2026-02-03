@@ -22,7 +22,9 @@ require __DIR__ . "/../../app/includes/navbar.php";
         <strong>Productos</strong>
         
       </a>
-
+        <a class="btn btn--ghost" href="<?= $config["base_url"] ?>/admin/categorias/">
+        Categorías
+      </a>
       <a class="dashboard__card" href="<?= $config["base_url"] ?>/admin/logout.php">
         <strong>Cerrar sesión</strong>
    

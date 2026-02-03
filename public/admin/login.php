@@ -37,32 +37,38 @@ require __DIR__ . "/../../app/includes/header.php";
 require __DIR__ . "/../../app/includes/navbar.php";
 ?>
 
-<main class="container">
-  <section class="section">
-    <h1 class="section__title">Acceso admin</h1>
+<main class="auth">
+  <section class="auth__card">
+    <h1 class="auth__title">Acceso admin</h1>
+    <p class="auth__subtitle">Ingresa con tu usuario y contraseña</p>
 
     <?php if ($error): ?>
-      <p class="muted"><?= htmlspecialchars($error) ?></p>
+      <p class="auth__error"><?= htmlspecialchars($error) ?></p>
     <?php endif; ?>
 
-    <form class="box" method="post">
-      <div class="box__row">
-        <label class="form__label" >Usuario<br>
-          <input name="username" required>
-        </label>
+    <form class="form" method="post" autocomplete="off">
+      <div class="form__grid">
+        <div class="box__row span-2">
+          <label class="form__label">Usuario
+            <input class="form__input" name="username" required value="<?= htmlspecialchars($_POST["username"] ?? "") ?>">
+
+          </label>
+        </div>
+
+        <div class="box__row span-2">
+          <label class="form__label">Contraseña
+            <input class="form__input" type="password" name="password" required>
+          </label>
+        </div>
       </div>
 
-      <div class="box__row">
-        <label class="form__label" >Contraseña<br>
-          <input type="password" name="password" required>
-        </label>
-      </div>
-
-      <div class="section__actions">
+      <div class="section__actions auth__actions">
         <button class="btn btn--primary" type="submit">Entrar</button>
+        <a class="btn btn--ghost" href="<?= $config["base_url"] ?>/">Volver a la tienda</a>
       </div>
     </form>
   </section>
 </main>
+
 
 <?php require __DIR__ . "/../../app/includes/footer.php"; ?>

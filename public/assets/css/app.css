@@ -246,3 +246,61 @@ a{color:inherit;text-decoration:none}
   border-color: rgba(255,255,255,.28);
   box-shadow: 0 0 0 3px rgba(255,255,255,.08);
 }
+/**login navbar icono*/
+.nav__icon{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  text-decoration:none;
+  font-size:18px;
+  opacity:.75;
+  transition: background .15s ease, opacity .15s ease;
+}
+.nav__icon{
+  display: grid;
+  grid-column: 1fr;
+}
+
+/**formulario login**/
+
+/* ---------- Auth (Login) ---------- */
+.auth{
+  min-height: calc(100vh - 40px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 24px 16px;
+}
+
+.auth__card{
+  width:100%;
+  max-width: 460px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 18px;
+  padding: 22px;
+}
+
+.auth__title{
+  margin: 0 0 6px 0;
+  font-size: 22px;
+}
+
+.auth__subtitle{
+  margin: 0 0 18px 0;
+  color: rgba(255,255,255,.7);
+  font-size: 14px;
+}
+
+.auth__error{
+  margin: 0 0 14px 0;
+  color: rgba(255,120,120,.95);
+  font-size: 14px;
+}
+
+.auth__actions{
+  margin-top: 14px;
+}
