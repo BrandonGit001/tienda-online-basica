@@ -23,16 +23,13 @@ $waPhone = $config["whatsapp_phone"];
 
       <a class="nav__link" href="/productos.php?cat=ofertas">Ofertas</a>
 
-      <a class="nav__cta " target="_blank" rel="noopener"
+      <a class="nav__cta" target="_blank" rel="noopener"
          href="https://wa.me/<?= urlencode($waPhone) ?>?text=<?= urlencode('Hola, me gustaría información 🙂') ?>">
         WhatsApp
       </a>
-          <a class="nav__icon"
-            href="<?= is_admin_logged_in() ? $config["base_url"]."/admin/login.php" : $config["base_url"]."/admin/login.php" ?>"
-            aria-label="Admin">
-            ⚙️
-          </a>
-
+      <a class="nav__icon" href="<?= $config["base_url"] ?>/admin/login.php" aria-label="Admin">
+  ⚙️
+</a>
     </div>
   </nav>
 </header>

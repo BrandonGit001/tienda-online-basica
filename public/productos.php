@@ -70,5 +70,3 @@ require __DIR__ . "/../app/includes/navbar.php";
 
 <?php require __DIR__ . "/../app/includes/footer.php"; ?>
 
-
-<?php require __DIR__ . "/../app/includes/footer.php"; ?>
