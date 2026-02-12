@@ -26,22 +26,38 @@ if (!$producto) {
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  // 1) borrar registro
-  $stmtDel = $pdo->prepare("DELETE FROM productos WHERE id = ?");
-  $stmtDel->execute([$id]);
 
-  // 2) borrar imagen del disco (si existía)
-  $img = $producto["imagen"] ?? null;
-  if ($img) {
-    $dir = __DIR__ . "/../../assets/img/products";
-    $path = $dir . "/" . $img;
-    if (is_file($path)) {
-      @unlink($path);
+  try {
+    // 1) borrar registro
+    $stmtDel = $pdo->prepare("DELETE FROM productos WHERE id = ? LIMIT 1");
+    $stmtDel->execute([$id]);
+
+    // 2) borrar imagen del disco (si existía)
+    $img = $producto["imagen"] ?? null;
+    if ($img) {
+      $dir  = __DIR__ . "/../../assets/img/products";
+      $path = $dir . "/" . $img;
+      if (is_file($path)) {
+        @unlink($path);
+      }
     }
-  }
 
-  header("Location: " . $config["base_url"] . "/admin/productos/");
-  exit;
+    header("Location: " . $config["base_url"] . "/admin/productos/?ok=eliminado");
+    exit;
+
+  } catch (PDOException $e) {
+    // 1451 / 23000: está referenciado en venta_items -> no se puede borrar
+    if ($e->getCode() === "23000") {
+      $stmtHide = $pdo->prepare("UPDATE productos SET estado = 'oculto' WHERE id = ? LIMIT 1");
+      $stmtHide->execute([$id]);
+
+      header("Location: " . $config["base_url"] . "/admin/productos/?ok=oculto");
+      exit;
+    }
+
+    // otro error (dev)
+    die("DB ERROR: " . $e->getMessage());
+  }
 }
 
 $title = "Admin - Eliminar producto";

@@ -8,22 +8,50 @@ require __DIR__ . "/../../../app/includes/auth.php";
 start_session();
 require_admin();
 
+/**
+ * Genera un slug simple sin librerías.
+ */
+function make_slug(string $text): string {
+  $text = trim(mb_strtolower($text, "UTF-8"));
+
+  // Quitar acentos (lo básico)
+  $replace = [
+    "á"=>"a","é"=>"e","í"=>"i","ó"=>"o","ú"=>"u","ü"=>"u","ñ"=>"n",
+    "Á"=>"a","É"=>"e","Í"=>"i","Ó"=>"o","Ú"=>"u","Ü"=>"u","Ñ"=>"n",
+  ];
+  $text = strtr($text, $replace);
+
+  // Todo lo que no sea letra/número -> guion
+  $text = preg_replace("/[^a-z0-9]+/i", "-", $text) ?? "";
+  $text = trim($text, "-");
+
+  // Evitar vacío
+  return $text !== "" ? $text : "producto";
+}
+
 // Traer categorías activas para el select
 $stmtCat = $pdo->prepare("SELECT id, nombre FROM categorias WHERE activa = 1 ORDER BY orden, nombre");
 $stmtCat->execute();
-$categorias = $stmtCat->fetchAll();
+$categorias = $stmtCat->fetchAll(PDO::FETCH_ASSOC);
 
 $error = "";
 $ok = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  $categoria_id = $_POST["categoria_id"] ?? "";
-  $nombre = trim($_POST["nombre"] ?? "");
-  $slug = trim($_POST["slug"] ?? "");
-  $descripcion = trim($_POST["descripcion"] ?? "");
-  $precio = $_POST["precio"] ?? "0";
-  $stock = $_POST["stock"] ?? "0";
-  $estado = $_POST["estado"] ?? "activo";
+  $categoria_id = (string)($_POST["categoria_id"] ?? "");
+  $nombre = trim((string)($_POST["nombre"] ?? ""));
+  $slug = trim((string)($_POST["slug"] ?? ""));
+  $descripcion = trim((string)($_POST["descripcion"] ?? ""));
+  $precio = (string)($_POST["precio"] ?? "0");
+  $stock = (string)($_POST["stock"] ?? "0");
+  $estado = (string)($_POST["estado"] ?? "activo");
+
+  // Si no mandan slug, lo generamos del nombre
+  if ($slug === "" && $nombre !== "") {
+    $slug = make_slug($nombre);
+  } else {
+    $slug = make_slug($slug); // normalizar aunque lo escriban a mano
+  }
 
   // Validaciones básicas
   if (!ctype_digit($categoria_id)) {
@@ -34,33 +62,51 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $error = "Slug inválido.";
   } elseif (!is_numeric($precio) || (float)$precio < 0) {
     $error = "Precio inválido.";
-  } elseif (!ctype_digit((string)$stock)) {
+  } elseif (!ctype_digit($stock)) {
     $error = "Stock inválido.";
   } elseif (!in_array($estado, ["activo","oculto","agotado","reservado"], true)) {
     $error = "Estado inválido.";
   } else {
-    // Insert
-    try {
-      $stmt = $pdo->prepare("
-        INSERT INTO productos (categoria_id, nombre, slug, descripcion, precio, stock, estado)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      ");
-      $stmt->execute([
-        (int)$categoria_id,
-        $nombre,
-        $slug,
-        $descripcion !== "" ? $descripcion : null,
-        (float)$precio,
-        (int)$stock,
-        $estado
-      ]);
+    // Validar que la categoría exista y esté activa (evita inserts “fantasma”)
+    $stmt = $pdo->prepare("SELECT id FROM categorias WHERE id = ? AND activa = 1 LIMIT 1");
+    $stmt->execute([(int)$categoria_id]);
+    $catOk = $stmt->fetchColumn();
 
-      $nuevoId = (int)$pdo->lastInsertId();
-      header("Location: " . $config["base_url"] . "/admin/productos/editar.php?id=" . $nuevoId);
-      exit;
-    } catch (PDOException $e) {
-      // Slug duplicado u otro error
-      $error = "No se pudo guardar. ¿Slug repetido?";
+    if (!$catOk) {
+      $error = "La categoría seleccionada no existe o está desactivada.";
+    } else {
+      // Insert
+      try {
+        $stmt = $pdo->prepare("
+          INSERT INTO productos (categoria_id, nombre, slug, descripcion, precio, stock, estado)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([
+          (int)$categoria_id,
+          $nombre,
+          $slug,
+          $descripcion !== "" ? $descripcion : null,
+          (float)$precio,
+          (int)$stock,
+          $estado
+        ]);
+
+        $nuevoId = (int)$pdo->lastInsertId();
+        header("Location: " . $config["base_url"] . "/admin/productos/editar.php?id=" . $nuevoId);
+        exit;
+
+      } catch (PDOException $e) {
+        // Si el slug es único, esto suele ser duplicate entry
+        // Mostramos mensaje claro (y si quieres debug, lo activamos)
+        $msg = $e->getMessage();
+
+        if (stripos($msg, "Duplicate") !== false || stripos($msg, "duplicate") !== false) {
+          $error = "No se pudo guardar: el slug ya existe. Prueba otro (ej: {$slug}-2).";
+        } else {
+          // En desarrollo, es mejor ver el error real
+          $error = "No se pudo guardar (DB). " . $msg;
+        }
+      }
     }
   }
 }
@@ -69,6 +115,7 @@ $title = "Admin - Crear producto";
 require __DIR__ . "/../../../app/includes/header.php";
 require __DIR__ . "/../../../app/includes/navbar.php";
 ?>
+
 
 <main class="container">
   <section class="section">

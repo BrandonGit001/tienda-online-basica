@@ -99,6 +99,7 @@ require __DIR__ . "/../../../app/includes/navbar.php";
     <div class="section__actions" style="justify-content:space-between;">
       <h1 class="section__title" style="margin:0;">Nueva venta</h1>
       <a class="btn btn--ghost" href="<?= $config["base_url"] ?>/admin/">Volver</a>
+      <a class="btn btn--ghost" href="<?= $config["base_url"] ?>/admin/">Dashboard</a>
     </div>
 
     <?php if ($error): ?>

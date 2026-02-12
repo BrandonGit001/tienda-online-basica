@@ -107,6 +107,7 @@ require __DIR__ . "/../../../app/includes/navbar.php";
             <button class="search-bar__btn" type="submit">
                 Buscar
             </button>
+            <a class="btn btn--ghost" href="<?= $config["base_url"] ?>/admin/">Dashboard</a>
             </form>
 
 <div class ="abonos-table">

@@ -7,28 +7,75 @@ require __DIR__ . "/../app/config/db.php";
 $config = require __DIR__ . "/../app/config/app.php";
 
 $slug = $_GET["cat"] ?? null;
-if (!$slug) {
-  die("Categoría no especificada.");
+$slug = $slug ? trim($slug) : null;
+/*if ($slug) {
+  /*
+  $stmtCat = $pdo->prepare("SELECT id, nombre FROM categorias WHERE slug = ? AND activa = 1 LIMIT 1");
+  $stmtCat->execute([$slug]);
+  $categoria = $stmtCat->fetch();
+
+  /*if (!$categoria) die("Categoria no encontrada.");
+
+  $stmtProd = $pdo->prepare("
+    SELECT id, nombre, precio, estado, imagen
+    FROM productos
+    WHERE categoria_id = ?
+      AND estado = 'activo'
+    ORDER BY created_at DESC
+  ");
+  $stmtProd->execute([$categoria["id"]]);
+
+} else {
+  $categoria = null;
+
+  $stmtProd = $pdo->prepare("
+    SELECT id, nombre, precio, estado, imagen
+    FROM productos
+    WHERE estado = 'activo'
+    ORDER BY created_at DESC
+  ");
+  $stmtProd->execute();
 }
 
-$stmtCat = $pdo->prepare("SELECT id, nombre FROM categorias WHERE slug = ? AND activa = 1 LIMIT 1");
-$stmtCat->execute([$slug]);
-$categoria = $stmtCat->fetch();
+$productos = $stmtProd->fetchAll();*/
+$slug = $_GET["cat"] ?? null;
+$slug = $slug ? trim($slug) : null;
+$productos = [];
+$categoria = null;
 
-if (!$categoria) {
-  die("Categoría no encontrada.");
+if ($slug !== null && $slug !== "") {
+  // Buscar categoría
+  $stmtCat = $pdo->prepare("SELECT id, nombre FROM categorias WHERE slug = ? AND activa = 1 LIMIT 1");
+  $stmtCat->execute([$slug]);
+  $categoria = $stmtCat->fetch(PDO::FETCH_ASSOC);
+
+  if (!$categoria) {
+    die("Categoría no encontrada.");
+  }
+
+  // Productos por categoría
+  $stmtProd = $pdo->prepare("
+    SELECT id, nombre, precio, estado, imagen
+    FROM productos
+    WHERE categoria_id = ?
+      AND estado = 'activo'
+    ORDER BY created_at DESC
+  ");
+  $stmtProd->execute([$categoria["id"]]);
+  $productos = $stmtProd->fetchAll(PDO::FETCH_ASSOC);
+
+} else {
+  // Todos los productos activos
+  $stmtProd = $pdo->prepare("
+    SELECT id, nombre, precio, estado, imagen
+    FROM productos
+    WHERE estado = 'activo'
+    ORDER BY created_at DESC
+  ");
+  $stmtProd->execute();
+  $productos = $stmtProd->fetchAll(PDO::FETCH_ASSOC);
 }
 
-$stmtProd = $pdo->prepare("
-  SELECT id, nombre, precio, estado, imagen
-
-  FROM productos
-  WHERE categoria_id = ?
-    AND estado = 'activo'
-  ORDER BY created_at DESC
-");
-$stmtProd->execute([$categoria["id"]]);
-$productos = $stmtProd->fetchAll();
 
 require __DIR__ . "/../app/includes/header.php";
 require __DIR__ . "/../app/includes/navbar.php";
@@ -37,7 +84,10 @@ require __DIR__ . "/../app/includes/navbar.php";
 
 <main class="container">
   <section class="section">
-    <h1 class="section__title"><?= htmlspecialchars($categoria["nombre"]) ?></h1>
+    <h1 class="section__title">
+  <?= $categoria ? htmlspecialchars($categoria["nombre"]) : "Productos" ?>
+</h1>
+
 
     <?php if (empty($productos)): ?>
       <p class="muted">No hay productos disponibles en esta categoría.</p>

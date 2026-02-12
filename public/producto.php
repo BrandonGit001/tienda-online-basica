@@ -17,7 +17,8 @@ if (!$id || !ctype_digit($id)) {
 
 $stmt = $pdo->prepare("
   SELECT p.id, p.nombre, p.descripcion, p.precio, p.estado,
-         c.nombre AS categoria
+   p.imagen,
+   c.nombre AS categoria
   FROM productos p
   JOIN categorias c ON c.id = p.categoria_id
   WHERE p.id = ?
@@ -25,8 +26,9 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$id]);
 $producto = $stmt->fetch();
-$img = $producto["imagen"] ?? null;
-$imgUrl = $img ? ($config["base_url"] . "/assets/img/products/" . $img) : null;
+$img = trim((string)($producto["imagen"] ?? ""));
+$imgUrl = $img !== "" ? ($config["base_url"] . "/assets/img/products/" . $img) : null;
+
 
 if (!$producto) {
   die("Producto no encontrado");
@@ -66,10 +68,8 @@ require __DIR__ . "/../app/includes/navbar.php";
     Quiero este (WhatsApp)
   </a>
 
-  <a class="btn btn--ghost"
-     href="<?= $config["base_url"] ?>/productos.php?cat=tenis">
-    Volver
-  </a>
+  <a class="btn btn--ghost" href="<?= $config["base_url"] ?>/productos.php">Volver</a>
+
 </div>
 
 

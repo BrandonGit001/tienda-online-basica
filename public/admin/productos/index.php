@@ -28,7 +28,8 @@ require __DIR__ . "/../../../app/includes/navbar.php";
   <section class="section">
     <div class="section__actions" style="justify-content:space-between;">
       <h1 class="section__title" style="margin:0;">Productos</h1>
-      <a class="btn btn--primary" href="<?= $config["base_url"] ?>/admin/productos/crear.php">+ Nuevo</a>
+      <a class="btn btn--primary" href="<?= $config["base_url"] ?>/admin/productos/crear.php">Nuevo</a>
+        <a class="btn btn--primary" href="<?= $config["base_url"] ?>/admin/index.php">Dashboard</a>
     </div>
 
     <?php if (empty($productos)): ?>

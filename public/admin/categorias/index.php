@@ -26,6 +26,7 @@ require __DIR__ . "/../../../app/includes/navbar.php";
     <div class="section__actions" style="justify-content:space-between;">
       <h1 class="section__title" style="margin:0;">Categorías</h1>
       <a class="btn btn--primary" href="<?= $config["base_url"] ?>/admin/categorias/crear.php">+ Nueva</a>
+      <a class="btn btn--primary" href="<?= $config["base_url"] ?>/admin/">Dashboard</a>
     </div>
 
     <?php if (empty($cats)): ?>
